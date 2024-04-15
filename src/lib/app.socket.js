@@ -14,3 +14,4 @@ let count = 0
 io.of("/").on("connection", (socket) => {
     socket.emit("currentName", names[count])
 })
+
