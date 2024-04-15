@@ -15,3 +15,13 @@ io.of("/").on("connection", (socket) => {
     socket.emit("currentName", names[count])
 })
 
+setInterval(() => {
+    if(count < 4) {
+        io.emit("currentName", names[count])
+        count ++
+    } else {
+        count = 0
+        io.emit("currentName", names[count])
+        count++
+    }
+}, 3000)
