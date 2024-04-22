@@ -10,25 +10,44 @@ const io = new Server(server, {
 })
 
 let count = 0
+let currentPerson = ""
+let nameInterval
 
 io.of("/").on("connection", (socket) => {
-    socket.emit("currentName", names[count])
-    console.log(names[count])
+    currentPerson = names[count]
+    socket.emit("currentName", currentPerson)
+    console.log(currentPerson)
 })
 
-setInterval(() => {
-    const timeInBrasilia = moment().tz("America/Sao_Paulo").format("HH");
-    
-    if (timeInBrasilia === "12") {
-        if(count < 4) {
-                io.emit("currentName", names[count])
-                console.log(names[count])
-                count ++
-            } else {
-                count = 0
-                io.emit("currentName", names[count])
-                console.log(names[count])
-                count++
-            }
+const timer = () => {
+    return {
+        start() {
+            nameInterval = setInterval(() => {
+                const timeInBrasilia = moment().tz("America/Sao_Paulo").format("HH");
+                if (String(timeInBrasilia) == "00") {
+                    if(count < 4) {
+                        currentPerson = names[count]
+                        io.emit("currentName", currentPerson)
+                        console.log(currentPerson)
+                        count ++
+                    } else {
+                        count = 0
+                        currentPerson = names[count]
+                        io.emit("currentName", currentPerson)
+                        console.log(currentPerson)
+                        count++
+                    }
+                    timer().stop()
+                    setTimeout(() => {
+                        timer().start()
+                    }, 3600000)
+                }
+            }, 60000)
+        },
+        stop() {
+            clearInterval(nameInterval)
+        }
     }
-}, 3600000)
+}
+
+timer().start()
